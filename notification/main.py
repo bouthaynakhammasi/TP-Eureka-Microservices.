@@ -12,6 +12,12 @@ os.environ.pop('SSL_CERT_FILE', None)
 PORT = int(os.getenv("PORT", 8084))
 BASE_URL = f"http://localhost:{PORT}"
 
+APP_INFO = {
+    "name": "notification",
+    "description": "Microservice d'envoi des notifications",
+    "version": "1.0.0",
+}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,9 +28,11 @@ async def lifespan(app: FastAPI):
         instance_port=PORT,
         instance_host="localhost",
         instance_ip="127.0.0.1",
+        # Même format que les services Spring : localhost:<service>:<port>
+        instance_id=f"localhost:notification:{PORT}",
         home_page_url=f"{BASE_URL}/",
-        health_check_url=f"{BASE_URL}/health",
-        status_page_url=f"{BASE_URL}/health",
+        health_check_url=f"{BASE_URL}/actuator/health",
+        status_page_url=f"{BASE_URL}/actuator/info",
     )
     print(f"Eureka registration complete - NOTIFICATION registered on port {PORT}")
     yield
@@ -34,12 +42,23 @@ async def lifespan(app: FastAPI):
     print("Eureka unregistration complete")
 
 
-app = FastAPI(title="Notification Microservice", lifespan=lifespan)
+app = FastAPI(title="Notification Microservice", version=APP_INFO["version"], lifespan=lifespan)
 
 
 @app.get("/api/notifications/hello")
 def hello():
     return {"message": "Hello from Notification Microservice"}
+
+
+# Endpoints au format Spring Boot Actuator, déclarés à Eureka (status_page_url / health_check_url)
+@app.get("/actuator/info")
+def actuator_info():
+    return {"app": APP_INFO}
+
+
+@app.get("/actuator/health")
+def actuator_health():
+    return {"status": "UP"}
 
 
 @app.get("/health")

@@ -1,5 +1,6 @@
 const express = require('express');
 const { Eureka } = require('eureka-js-client');
+const pkg = require('./package.json');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8083;
@@ -12,8 +13,8 @@ const client = new Eureka({
     instanceId: `localhost:meeting:${PORT}`,
     hostName: 'localhost',
     ipAddr: '127.0.0.1',
-    statusPageUrl: `http://localhost:${PORT}/health`,
-    healthCheckUrl: `http://localhost:${PORT}/health`,
+    statusPageUrl: `http://localhost:${PORT}/actuator/info`,
+    healthCheckUrl: `http://localhost:${PORT}/actuator/health`,
     homePageUrl: `http://localhost:${PORT}/`,
     port: {
       '$': PORT,
@@ -42,7 +43,15 @@ app.get('/api/meetings/hello', (req, res) => {
   res.json({ message: 'Hello from Meeting microservice!' });
 });
 
-// Endpoint health déclaré à Eureka (healthCheckUrl / statusPageUrl)
+// Endpoints au format Spring Boot Actuator, déclarés à Eureka (statusPageUrl / healthCheckUrl)
+app.get('/actuator/info', (req, res) => {
+  res.json({ app: { name: pkg.name, description: pkg.description, version: pkg.version } });
+});
+
+app.get('/actuator/health', (req, res) => {
+  res.json({ status: 'UP' });
+});
+
 app.get('/health', (req, res) => {
   res.json({ service: 'MEETING', status: 'UP', port: PORT });
 });
