@@ -4,11 +4,13 @@ Tous les microservices s'enregistrent auprès d'un même serveur **Netflix Eurek
 
 ## Membres de l'équipe
 
-- Nom Prénom 1
-- Nom Prénom 2
-- Nom Prénom 3
-- Nom Prénom 4
-
+bouthaina 
+isra 
+farah
+aziz
+ firas 
+ aziz
+ 
 ## Architecture
 
 | Microservice  | Technologie               | Port par défaut | Nom dans Eureka | Dossier          |
